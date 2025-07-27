@@ -99,8 +99,15 @@ func (b bucket) split() (bucket, bucket) {
 	return b[:mid], b[mid:]
 }
 
-func (c rgbColor) toColor() color.Color {
-	return color.RGBA{c[rIdx], c[gIdx], c[bIdx], 255}
+func (c rgbColor) RGBA() (r, g, b, a uint32) {
+	r = uint32(c[rIdx])
+	r |= r << 8
+	g = uint32(c[gIdx])
+	g |= g << 8
+	b = uint32(c[bIdx])
+	b |= b << 8
+	a = uint32(0xffff) // No alpha channel in this quantizer
+	return
 }
 
 func findLargestBucket(buckets []bucket) int {
@@ -144,6 +151,9 @@ func (Quantizer) Quantize(p color.Palette, img image.Image) color.Palette {
 
 		currentBucket := buckets[largestBucketIndex]
 		newBucket1, newBucket2 := currentBucket.split()
+		if newBucket2 == nil {
+			panic("Bucket split resulted in nil bucket, cannot continue")
+		}
 		buckets[largestBucketIndex] = newBucket1
 		buckets = append(buckets, newBucket2)
 	}
@@ -162,8 +172,7 @@ func (Quantizer) Quantize(p color.Palette, img image.Image) color.Palette {
 		}
 
 		n := uint32(len(bkt))
-		c := rgbColor{uint8(r / n), uint8(g / n), uint8(b / n)}
-		palette = append(palette, c.toColor())
+		palette = append(palette, rgbColor{uint8(r / n), uint8(g / n), uint8(b / n)})
 	}
 
 	if len(palette) > numberOfColors {
