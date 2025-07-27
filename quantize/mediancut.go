@@ -21,7 +21,10 @@ type (
 	rgbColor [supportedDimensions]uint8
 )
 
-type Quantizer struct{}
+// Used to implement draw.Quantizer interface
+type quantizer struct{}
+
+var Quantizer quantizer = quantizer{}
 
 func (cs colorSet) fillColors(img image.Image) {
 	bounds := img.Bounds()
@@ -127,7 +130,7 @@ func findLargestBucket(buckets []bucket) int {
 	return largestBucketIndex
 }
 
-func (Quantizer) Quantize(p color.Palette, img image.Image) color.Palette {
+func (quantizer) Quantize(p color.Palette, img image.Image) color.Palette {
 	if len(p) > 0 {
 		panic("Quantizer does not support pre-defined palettes")
 	}
