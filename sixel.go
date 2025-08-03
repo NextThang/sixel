@@ -9,7 +9,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/nextthang/sixel/quantize"
+	"github.com/nextthang/sixel/pkg/quantize"
 )
 
 const (
@@ -113,6 +113,7 @@ func Encode(w io.Writer, img image.Image) error {
 
 	for curY := bounds.Min.Y; curY < bounds.Max.Y; curY += bandHeight {
 		uniqueColors := findUniqueColorsInBand(palettedImage, bounds, curY)
+		index := 0
 		for c := range uniqueColors {
 			idx := paletteMap[c]
 			if _, err := fmt.Fprintf(writer, "#%d", idx); err != nil {
@@ -135,9 +136,14 @@ func Encode(w io.Writer, img image.Image) error {
 				line.WriteRune(rune(pixel))
 			}
 			writer.WriteString(rleEncode(line.String()))
-			writer.WriteRune('$') // Carriage Return
+			index++
+			if index < len(uniqueColors) {
+				writer.WriteRune('$') // Carriage Return
+			}
 		}
-		writer.WriteRune('-') // New Line
+		if curY+bandHeight < bounds.Max.Y {
+			writer.WriteRune('-') // New Line
+		}
 	}
 	writer.WriteString(terminator)
 
