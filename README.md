@@ -113,7 +113,7 @@ import (
  _ "image/png"
  "os"
 
- "github.com/nextthang/sixel/quantize"
+ "github.com/nextthang/sixel/pkg/quantize"
 )
 
 func main() {
