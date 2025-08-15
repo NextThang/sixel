@@ -3,7 +3,9 @@ package quantize
 import (
 	"image"
 	"image/color"
+	"runtime"
 	"slices"
+	"sync"
 )
 
 const (
@@ -28,10 +30,38 @@ var Quantizer quantizer = quantizer{}
 
 func (cs colorSet) fillColors(img image.Image) {
 	bounds := img.Bounds()
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			r, g, b, _ := img.At(x, y).RGBA()
-			cs[rgbColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8)}] = void{}
+	numWorkers := runtime.NumCPU()
+	wg := sync.WaitGroup{}
+
+	tempColorSets := make([]colorSet, numWorkers)
+
+	chunkSize := (bounds.Max.Y - bounds.Min.Y) / numWorkers
+	for i := range numWorkers {
+		tempColorSets[i] = make(colorSet)
+
+		startY := bounds.Min.Y + i*chunkSize
+		endY := startY + chunkSize
+		if i == numWorkers-1 {
+			endY = bounds.Max.Y
+		}
+
+		wg.Add(1)
+		go func(i int, startY, endY int) {
+			defer wg.Done()
+			for y := startY; y < endY; y++ {
+				for x := bounds.Min.X; x < bounds.Max.X; x++ {
+					r, g, b, _ := img.At(x, y).RGBA()
+					tempColorSets[i][rgbColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8)}] = void{}
+				}
+			}
+		}(i, startY, endY)
+	}
+
+	wg.Wait()
+
+	for _, tempSet := range tempColorSets {
+		for c := range tempSet {
+			cs[c] = void{}
 		}
 	}
 }
