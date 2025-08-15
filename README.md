@@ -74,8 +74,7 @@ func main() {
  // Open an image file
  file, err := os.Open("path/to/your/image.png")
  if err != nil {
-  fmt.Fprintf(os.Stderr, "Error opening file: %v
-", err)
+  fmt.Fprintf(os.Stderr, "Error opening file: %v", err)
   os.Exit(1)
  }
  defer file.Close()
@@ -83,15 +82,13 @@ func main() {
  // Decode the image
  img, _, err := image.Decode(file)
  if err != nil {
-  fmt.Fprintf(os.Stderr, "Error decoding image: %v
-", err)
+  fmt.Fprintf(os.Stderr, "Error decoding image: %v", err)
   os.Exit(1)
  }
 
  // Encode the image to Sixel format and write to standard output
  if err := sixel.Encode(os.Stdout, img); err != nil {
-  fmt.Fprintf(os.Stderr, "Error encoding image to sixel: %v
-", err)
+  fmt.Fprintf(os.Stderr, "Error encoding image to sixel: %v", err)
   os.Exit(1)
  }
 }
@@ -120,8 +117,7 @@ func main() {
  // Open an image file
  file, err := os.Open("path/to/your/image.png")
  if err != nil {
-  fmt.Fprintf(os.Stderr, "Error opening file: %v
-", err)
+  fmt.Fprintf(os.Stderr, "Error opening file: %v", err)
   os.Exit(1)
  }
  defer file.Close()
@@ -129,16 +125,14 @@ func main() {
  // Decode the image
  img, _, err := image.Decode(file)
  if err != nil {
-  fmt.Fprintf(os.Stderr, "Error decoding image: %v
-", err)
+  fmt.Fprintf(os.Stderr, "Error decoding image: %v", err)
   os.Exit(1)
  }
 
  // Create a new file to write the GIF to
  outFile, err := os.Create("output.gif")
  if err != nil {
-  fmt.Fprintf(os.Stderr, "Error creating file: %v
-", err)
+  fmt.Fprintf(os.Stderr, "Error creating file: %v", err)
   os.Exit(1)
  }
  defer outFile.Close()
@@ -149,8 +143,7 @@ func main() {
   Quantizer: quantize.Quantizer,
  })
  if err != nil {
-  fmt.Fprintf(os.Stderr, "Error encoding GIF: %v
-", err)
+  fmt.Fprintf(os.Stderr, "Error encoding GIF: %v", err)
   os.Exit(1)
  }
 }
